@@ -23,6 +23,7 @@ cd app-laravel/
 ```
 
 
+
 Crie o Arquivo .env
 ```sh
 cp .env.example .env
