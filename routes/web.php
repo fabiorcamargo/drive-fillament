@@ -14,9 +14,7 @@ use Illuminate\Support\Facades\Storage;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::redirect('/', '/admin');
 
 Route::get('/download/{id}', function ($id) {
     $file = App\Models\File::findOrFail($id);

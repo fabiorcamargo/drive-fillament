@@ -2,6 +2,8 @@
 
 namespace App\Observers;
 
+use App\Jobs\DeleteUploadFile;
+use App\Jobs\UploadFileToSpace;
 use App\Models\File;
 use Illuminate\Support\Facades\Storage;
 
@@ -12,8 +14,30 @@ class SpaceObserver
      */
     public function created(File $file): void
     {
-        //
-        //dd('s');
+
+    $file->update(['status' => 'subindo']);
+        // Obter o caminho do arquivo armazenado
+    $filePath = $file->file_path; // Caminho relativo do banco de dados, ex: 'uploads/nome_do_arquivo.ext'
+    
+    // Obter o caminho absoluto do arquivo local
+    $fullFilePath = storage_path('app/public/' . $filePath);
+    
+    //dd($fullFilePath, basename($filePath), $file->id);
+    // Verifique se o arquivo existe antes de despachar o job
+    if (file_exists($fullFilePath)) {
+        // Despacha o job para fazer o upload para o DigitalOcean Spaces
+        UploadFileToSpace::dispatch($fullFilePath, basename($filePath), $file->id);
+        
+        // (Opcional) Para deletar o arquivo local após um certo tempo
+        // DeleteUploadFile::dispatch($fullFilePath)->delay(now()->addMinutes(1));
+       
+    }
+
+       
+        // Obter o caminho absoluto do arquivo local
+        //$fullFilePath = storage_path('app/public/' . $file->file_path);
+
+        //DeleteUploadFile::dispatch($fullFilePath)->delay(60);
     }
 
     /**

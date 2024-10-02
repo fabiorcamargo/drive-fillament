@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name'); // Armazena o caminho do arquivo
             $table->string('file_path'); // Armazena o caminho do arquivo
+            $table->string('status')->nullable();
             $table->timestamps();
         });
     }

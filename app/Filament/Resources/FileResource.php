@@ -21,29 +21,27 @@ class FileResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $label = 'Arquivos';
+    protected static ?string $label = 'Upload';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    //->disk('spaces')
-                    ->required(),
-                Forms\Components\FileUpload::make('file_path')
-                    //->disk('spaces')
-                    ->directory('uploads')
-                    ->visibility('public')
-                    ->preserveFilenames()
-                    ->rules('mimes:jpg,png,pdf,mp4,mov', 'max:20000000')
-                    ->required()
-
-                    ->afterStateUpdated(function ($state) {
-                        if ($state) {
-                            // Despacha o job
-                            UploadFileToSpace::dispatch($state->getRealPath(), $state->getClientOriginalName());
-                        }
-                    }),
+                Forms\Components\Section::make('Upload de arquivos')
+                    ->description('O Upload está limitado a 5GB, são aceitos imagens, vídeos e pdf.')
+                    ->schema([
+                        Forms\Components\TextInput::make('name')
+                            //->disk('spaces')
+                            ->required(),
+                        Forms\Components\FileUpload::make('file_path')
+                            ->label('Arquivo')
+                            ->disk('public')
+                            ->directory('uploads')
+                            ->visibility('public')
+                            ->preserveFilenames()
+                            ->rules('mimes:jpg,png,pdf,mp4,mov', 'max:20000000')
+                            ->required(),
+                    ])->columns(1)->aside()
             ]);
     }
 
@@ -53,6 +51,19 @@ class FileResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->url(fn($record) => Storage::disk('spaces')->url($record->file_path), true), // Link clicável
+                Tables\Columns\IconColumn::make('status')
+                    ->icon(fn(string $state): string => match ($state) {
+                        'erro' => 'hheroicon-o-x-circle',
+                        'subindo' => 'heroicon-o-clock',
+                        'concluído' => 'heroicon-o-check-circle',
+                    })
+                    ->color(fn (string $state): string => match ($state) {
+                        'erro' => 'danger',
+                        'subindo' => 'warning',
+                        'concluído' => 'success',
+                        default => 'gray',
+                    })
+                    ->disabledClick(),
                 Tables\Columns\TextColumn::make('created_at')->dateTime()->disabledClick(),
                 Tables\Columns\TextColumn::make('updated_at')->dateTime()->disabledClick(),
             ])
@@ -62,7 +73,7 @@ class FileResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
-            ]);
+            ])->poll('5s');
     }
 
     public static function getRelations(): array
