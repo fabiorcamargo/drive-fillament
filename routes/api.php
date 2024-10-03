@@ -1,5 +1,8 @@
 <?php
 
+use App\Jobs\SendMessage;
+use App\Models\File;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,4 +19,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+Route::get('msg', function(){
+   dd(File::first()->id);
+
+    //SendMessage::dispatch('5542991622889', 'Teste');
 });

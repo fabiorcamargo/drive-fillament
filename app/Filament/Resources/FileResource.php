@@ -5,18 +5,22 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\FileResource\Pages;
 use App\Filament\Resources\FileResource\RelationManagers;
 use App\Jobs\UploadFileToSpace;
+use App\Livewire\ModalPhone;
 use App\Models\File;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Actions;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\HtmlString;
 
 class FileResource extends Resource
 {
+
     protected static ?string $model = File::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
@@ -41,7 +45,7 @@ class FileResource extends Resource
                             ->preserveFilenames()
                             ->rules('mimes:jpg,png,pdf,mp4,mov', 'max:20000000')
                             ->required(),
-                    ])->columns(1)->aside()
+                    ])->columns(1)->aside(),
             ]);
     }
 
@@ -50,14 +54,14 @@ class FileResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->url(fn($record) => Storage::disk('spaces')->url($record->file_path), true), // Link clicável
+                    ->url(fn($record) => Storage::disk('spaces')->url('uploads/'.$record->id), true), // Link clicável
                 Tables\Columns\IconColumn::make('status')
                     ->icon(fn(string $state): string => match ($state) {
-                        'erro' => 'hheroicon-o-x-circle',
+                        'erro' => 'heroicon-o-x-circle',
                         'subindo' => 'heroicon-o-clock',
                         'concluído' => 'heroicon-o-check-circle',
                     })
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'erro' => 'danger',
                         'subindo' => 'warning',
                         'concluído' => 'success',

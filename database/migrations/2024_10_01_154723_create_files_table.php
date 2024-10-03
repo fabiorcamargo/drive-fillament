@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('files', function (Blueprint $table) {
-            $table->id();
-            $table->string('name'); // Armazena o caminho do arquivo
+            $table->uuid('id')->primary(); // Define UUID como a chave primária
+            $table->string('name'); // Armazena o nome do arquivo
             $table->string('file_path'); // Armazena o caminho do arquivo
-            $table->string('status')->nullable();
+            $table->string('status')->nullable(); // Status do arquivo (opcional)
             $table->timestamps();
         });
     }

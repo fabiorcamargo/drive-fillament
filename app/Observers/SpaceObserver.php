@@ -54,7 +54,7 @@ class SpaceObserver
     public function deleted(File $file): void
     {
         // Exclui o arquivo do Digital Ocean Spaces
-        Storage::disk('spaces')->delete($file->file_path);
+        Storage::disk('spaces')->delete('uploads/'.$file->id);
     }
 
     /**
