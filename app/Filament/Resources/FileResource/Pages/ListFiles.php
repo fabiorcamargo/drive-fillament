@@ -87,6 +87,8 @@ class ListFiles extends ListRecords
                             ->title('Código verificado com sucesso!')
                             ->success()
                             ->send();
+
+                        SendMessage::dispatch('55' . auth()->user()->phone, 'Número ativado com sucesso!');
                     } else {
                         Notification::make()
                             ->title('Código de verificação inválido.')
