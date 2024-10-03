@@ -28,7 +28,7 @@ class ListFiles extends ListRecords
 
     public function openModalShow(): Actions\Action
     {
-        if (auth()->user()->phone == null /*|| auth()->user()->updated_at < Carbon::now()->subMinute()*/) {
+        if (auth()->user()->phone == null || auth()->user()->updated_at < Carbon::now()->subMinute()) {
             return Actions\Action::make('openModal')
                 ->visible(true)
                 ->modalHeading('Insira seu número de telefone')
