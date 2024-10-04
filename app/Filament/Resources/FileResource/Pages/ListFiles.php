@@ -30,7 +30,7 @@ class ListFiles extends ListRecords
     {
         //dd(auth()->user()->phone !== null && auth()->user()->updated_at > Carbon::now()->subMinute());
         if (auth()->user()->phone !== null && auth()->user()->updated_at > Carbon::now()->subMinute()) {
-            
+
             return Actions\Action::make('openCodeModal') // Renomeado para evitar confusão
                 ->visible(auth()->user()->code !== 'success') // Usa o estado para controlar a visibilidade
                 ->modalHeading('Insira o código de verificação') // Atualize o título
@@ -69,42 +69,43 @@ class ListFiles extends ListRecords
 
                     redirect('/admin/files'); // Redireciona após a verificação
                 });
-
         } else {
 
-            return Actions\Action::make('openModal')
-                ->visible(true)
-                ->modalHeading('Insira seu número de telefone')
-                ->modalDescription(new HtmlString("Por favor, insira seu número de telefone."))
-                ->modalSubmitActionLabel('Salvar')
-                ->color('success')
-                ->modalCancelAction(false)
-                ->modalCloseButton(false)
-                ->closeModalByEscaping(false)
-                ->closeModalByClickingAway(false)
-                ->form([
-                    TextInput::make('phone') // Campo para o número de telefone
-                        ->label('Número de Telefone')
-                        ->required() // Torna o campo obrigatório 
-                        ->placeholder('Ex: 11999999999') // Placeholder 
-                        ->rules('required|string|min:14|max:14') // Regras de validação 
-                        ->prefix('55')
-                        ->mask('99 9 9999 9999'), // Máscara para telefone com DDD 
-                ])
+            if (auth()->user()->code !== 'success') {
+                return Actions\Action::make('openModal')
+                    ->visible(true)
+                    ->modalHeading('Insira seu número de telefone')
+                    ->modalDescription(new HtmlString("Por favor, insira seu número de telefone."))
+                    ->modalSubmitActionLabel('Salvar')
+                    ->color('success')
+                    ->modalCancelAction(false)
+                    ->modalCloseButton(false)
+                    ->closeModalByEscaping(false)
+                    ->closeModalByClickingAway(false)
+                    ->form([
+                        TextInput::make('phone') // Campo para o número de telefone
+                            ->label('Número de Telefone')
+                            ->required() // Torna o campo obrigatório 
+                            ->placeholder('Ex: 11999999999') // Placeholder 
+                            ->rules('required|string|min:14|max:14') // Regras de validação 
+                            ->prefix('55')
+                            ->mask('99 9 9999 9999'), // Máscara para telefone com DDD 
+                    ])
 
-                ->action(function (array $data): void {
-                    // Salva o número e envia a mensagem
-                    $phone = str_replace(' ', '', $data['phone']);
-                    $code = rand(10000, 99999);
+                    ->action(function (array $data): void {
+                        // Salva o número e envia a mensagem
+                        $phone = str_replace(' ', '', $data['phone']);
+                        $code = rand(10000, 99999);
 
-                    $this->savePhoneNumber($phone, $code);
-                    SendMessage::dispatch('55' . $phone, 'Segue o código de verificação' . PHP_EOL . PHP_EOL . $code);
+                        $this->savePhoneNumber($phone, $code);
+                        SendMessage::dispatch('55' . $phone, 'Segue o código de verificação' . PHP_EOL . PHP_EOL . $code);
 
-                    redirect('/admin/files');
-                });
-
-            
+                        redirect('/admin/files');
+                    });
+            }
         }
+        // Sempre retorna uma ação, mesmo que não seja visível
+        return Actions\Action::make('noop')->visible(false);
     }
 
     // Lógica para salvar o número de telefone
