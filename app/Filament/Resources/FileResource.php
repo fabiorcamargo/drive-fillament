@@ -43,7 +43,7 @@ class FileResource extends Resource
                             ->directory('uploads')
                             ->visibility('public')
                             ->preserveFilenames()
-                            ->rules('mimes:jpg,png,pdf,mp4,mov', 'max:20000000')
+                            ->rules('mimes:jpg,png,webp,pdf,mp4,mov', 'max:20000000')
                             ->required(),
                     ])->columns(1)->aside(),
             ]);

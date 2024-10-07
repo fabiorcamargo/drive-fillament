@@ -52,10 +52,15 @@ class UploadFileToSpace implements ShouldQueue
             $users = User::all(['phone', 'name']);
             $nameFile = urlencode($this->fileName);
             $nameFile = str_replace('+', '%20', $nameFile);
+            $delay = 0;
 
             foreach($users as $user){
-                //dd($user);
-                SendMessage::dispatch('55' . $user->phone, 'Olá ' . $user->name . PHP_EOL . 'Novo arquivo disponível: ' . $file->name . PHP_EOL . PHP_EOL . 'Acesse através do link:' . PHP_EOL . env('DO_SPACES_URL') . '/uploads' . '/' . $this->fileId)->delay(5);
+                
+                $msg = 'Olá ' . $user->name . PHP_EOL . 'Novo arquivo disponível: ' . $file->name . PHP_EOL . PHP_EOL . 'Acesse através do link:' . PHP_EOL . env('DO_SPACES_URL') . '/uploads' . '/' . $this->fileId;
+                //dd(json_encode($msg));
+                SendMessage::dispatch('55' . $user->phone, $msg)->delay(now()->addSeconds($delay));;
+
+                $delay += 5;
             }
 
         } catch (Exception $e) {
